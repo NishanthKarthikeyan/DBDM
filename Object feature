@@ -1,0 +1,29 @@
+-- 1. Create a User-Defined Type (UDT) for Address
+CREATE TYPE address_type AS (
+    street VARCHAR(50),
+    city VARCHAR(30),
+    pincode VARCHAR(10)
+);
+
+-- 2. Create a Table using the UDT
+CREATE TABLE student (
+    roll_no INT PRIMARY KEY,
+    name VARCHAR(50),
+    address address_type
+);
+
+-- 3. Insert Sample Data
+INSERT INTO student VALUES
+(101, 'Nishanth', ROW('12 Gandhi Street', 'Chennai', '600001')),
+(102, 'Arun', ROW('5 Anna Nagar', 'Madurai', '625002'));
+
+-- 4. Create a Function to display full address as a single string
+CREATE FUNCTION get_full_address(addr address_type)
+RETURNS VARCHAR AS $$
+BEGIN
+    RETURN addr.street || ', ' || addr.city || ' - ' || addr.pincode;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 5. Use the function in SELECT
+SELECT name, get_full_address(address) AS full_address FROM student;
