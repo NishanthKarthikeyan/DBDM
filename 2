@@ -1,0 +1,48 @@
+-- Drop existing types/tables if any
+DROP TABLE IF EXISTS VehicleTable;
+DROP TYPE IF EXISTS VehicleType;
+
+-- 1. Create an object type (like a class)
+CREATE TYPE VehicleType AS (
+    brand VARCHAR(50),
+    model VARCHAR(50),
+    year INT
+);
+
+-- 2. Create a table with an object (composite) column
+CREATE TABLE VehicleTable (
+    id SERIAL PRIMARY KEY,
+    vehicle_info VehicleType
+);
+
+-- 3. Insert object-type data into table
+INSERT INTO VehicleTable (vehicle_info)
+VALUES 
+    (ROW('Toyota', 'Corolla', 2020)),
+    (ROW('Honda', 'Civic', 2022)),
+    (ROW('Yamaha', 'FZ', 2021));
+
+-- 4. Query full object data
+SELECT * FROM VehicleTable;
+
+-- 5. Access individual object fields
+SELECT 
+    id,
+    vehicle_info.brand,
+    vehicle_info.model,
+    vehicle_info.year
+FROM VehicleTable;
+
+-- 6. Define a function (method-like behavior)
+CREATE OR REPLACE FUNCTION get_vehicle_summary(v VehicleType)
+RETURNS TEXT AS $$
+BEGIN
+    RETURN 'Brand: ' || v.brand || ', Model: ' || v.model || ', Year: ' || v.year;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 7. Use the function to display object summary
+SELECT 
+    id,
+    get_vehicle_summary(vehicle_info) AS summary
+FROM VehicleTable;
